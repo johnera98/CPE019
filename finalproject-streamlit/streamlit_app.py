@@ -21,7 +21,7 @@ class SimpleNN(nn.Module):
         x = self.fc2(x)
         return x
 
-@st.cache(allow_output_mutation=True)
+@st.cache_resource
 def load_model():
     model_path = 'mnist_model.pth'
     if not os.path.exists(model_path):
