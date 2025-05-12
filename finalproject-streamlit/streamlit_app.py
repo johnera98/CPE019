@@ -4,6 +4,7 @@ from PIL import Image, ImageOps
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
+import os
 
 class SimpleNN(nn.Module):
     def __init__(self):
@@ -22,8 +23,12 @@ class SimpleNN(nn.Module):
 
 @st.cache(allow_output_mutation=True)
 def load_model():
+    model_path = 'mnist_model.pth'
+    if not os.path.exists(model_path):
+        st.error(f"Model file '{model_path}' not found. Please run the training script to generate it.")
+        return None
     model = SimpleNN()
-    model.load_state_dict(torch.load('mnist_model.pth', map_location=torch.device('cpu')))
+    model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
     model.eval()
     return model
 
@@ -47,6 +52,8 @@ def main():
     st.write("Upload a 28x28 grayscale image of a digit for prediction.")
 
     model = load_model()
+    if model is None:
+        return
 
     uploaded_file = st.file_uploader("Choose an image...", type=["png", "jpg", "jpeg"])
 
