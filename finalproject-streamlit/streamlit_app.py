@@ -23,7 +23,7 @@ class SimpleNN(nn.Module):
 
 @st.cache_resource
 def load_model():
-    model_path = 'finalproject-streamlit/mnist_model.pth'
+    model_path = 'mnist_model.pth'
     if not os.path.exists(model_path):
         st.error(f"Model file '{model_path}' not found. Please run the training script to generate it.")
         return None
