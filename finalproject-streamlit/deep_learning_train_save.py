@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
+import os
+import shutil
 
 class SimpleNN(nn.Module):
     def __init__(self):
@@ -20,42 +21,46 @@ class SimpleNN(nn.Module):
         return x
 
 def train_and_save_model():
-    # Define transformations
+    # Define transformations for the training data
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.1307,), (0.3081,))
     ])
 
-    # Load MNIST dataset
-    train_dataset = datasets.MNIST(root='./finalproject-streamlit', train=True, download=True, transform=transform)
-    test_dataset = datasets.MNIST(root='./finalproject-streamlit', train=False, download=True, transform=transform)
+    # Load MNIST training dataset
+    train_dataset = datasets.MNIST(root='./data', train=True, download=True, transform=transform)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=64, shuffle=True)
 
-    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=1000, shuffle=False)
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = SimpleNN().to(device)
-
+    # Initialize the model, loss function and optimizer
+    model = SimpleNN()
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-    # Training loop
+    # Train the model for 5 epochs
     model.train()
     for epoch in range(5):
-        total_loss = 0
-        for data, target in train_loader:
-            data, target = data.to(device), target.to(device)
+        running_loss = 0.0
+        for images, labels in train_loader:
             optimizer.zero_grad()
-            output = model(data)
-            loss = criterion(output, target)
+            outputs = model(images)
+            loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
-            total_loss += loss.item()
-        print(f"Epoch {epoch+1}, Loss: {total_loss/len(train_loader)}")
+            running_loss += loss.item()
+        print(f"Epoch {epoch+1}, Loss: {running_loss/len(train_loader)}")
 
-    # Save the model
-    torch.save(model.state_dict(), 'mnist_model.pth')
-    print("Model trained and saved as mnist_model.pth")
+    # Save the model to the finalproject-streamlit directory
+    save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'finalproject-streamlit')
+    os.makedirs(save_dir, exist_ok=True)
+    save_path = os.path.join(save_dir, 'mnist_model.pth')
+    torch.save(model.state_dict(), save_path)
+    print(f"Model trained and saved as {save_path}")
+
+    # Additionally, copy the model file to the current working directory (where Streamlit app runs)
+    current_dir = os.getcwd()
+    dest_path = os.path.join(current_dir, 'mnist_model.pth')
+    shutil.copyfile(save_path, dest_path)
+    print(f"Model file copied to {dest_path}")
 
 if __name__ == "__main__":
     train_and_save_model()
