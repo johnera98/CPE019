@@ -1,5 +1,3 @@
-# train_model.py
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -38,7 +36,7 @@ def train():
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-    for epoch in range(1):  # 1 epoch is enough for demo
+    for epoch in range(1):  # One quick training epoch
         model.train()
         for images, labels in train_loader:
             optimizer.zero_grad()
@@ -46,10 +44,10 @@ def train():
             loss = criterion(output, labels)
             loss.backward()
             optimizer.step()
-        print(f"Epoch complete. Loss: {loss.item():.4f}")
+        print(f"Training complete. Final loss: {loss.item():.4f}")
 
     torch.save(model.state_dict(), 'mnist_model.pth')
-    print("Model saved to mnist_model.pth")
+    print("✅ Model saved to mnist_model.pth")
 
 if __name__ == "__main__":
     train()
