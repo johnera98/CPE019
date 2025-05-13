@@ -7,7 +7,7 @@ st.title("MNIST Digit Recognizer")
 st.write("Upload a 28x28 pixel handwritten digit image (black on white).")
 
 # Load trained model
-model = tf.keras.models.load_model('mnist_model.h5')
+model = tf.keras.models.load_model('mnist_model.pth')
 
 # File uploader
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
